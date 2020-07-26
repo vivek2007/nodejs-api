@@ -1,0 +1,35 @@
+{
+  "name": "backend-node",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vivek2007/backend-node.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/vivek2007/backend-node/issues"
+  },
+  "homepage": "https://github.com/vivek2007/backend-node#readme",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "bluebird": "^3.7.2",
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "express-validation": "^3.0.5",
+    "joi": "^17.1.1",
+    "jwt-simple": "^0.5.6",
+    "mjml": "^4.6.3",
+    "moment-timezone": "^0.5.31",
+    "mongoose": "^5.9.25",
+    "nodemailer": "^6.4.10",
+    "uuid": "^8.2.0"
+  }
+}
