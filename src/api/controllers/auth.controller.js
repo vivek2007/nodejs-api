@@ -3,7 +3,7 @@ const { sendVerificationEmail, sendResetPassword, sendReferralCode } = require('
 const moment = require('moment-timezone')
 const mongoose = require("mongoose")
 const bcrypt = require('bcryptjs')
-const jwt = require('jwt-simple')
+const jwt = require('jsonwebtoken')
 const { v4: uuidv4 } = require('uuid')
 require('dotenv').config()
 const jwtSecret = process.env.JWT_SECRET
@@ -15,13 +15,14 @@ let generateToken = (user) => {
 		iat: moment().unix(),
 		user: user,
 	}
-	return jwt.encode(playload, jwtSecret)
+	return jwt.sign(playload, jwtSecret)
 }
 
 exports.register = async (req, res) => {
 	try 
 	{
-		let { email, username, password, referredByCode } = req.body
+		let { email, username, password, referredByCode, firstName, lastName } = req.body
+		referredByCode = referredByCode == undefined?"":referredByCode.trim()
 		let referredByUserID = ""
 		let status = 0
 		email = email.toLowerCase()
@@ -75,10 +76,10 @@ exports.register = async (req, res) => {
 						let uuid = uuidv4()
 						sendVerificationEmail(req.get('host'),email,username,uuid)
 						password = await bcrypt.hash(password, parseInt(process.env.SALT_ROUNDS))
-						let token = generateToken(user)
+						let token = generateToken({email:user.email,username:user.username,userID:user._id})
 						let referralCode = Math.random().toString(36).slice(2).toUpperCase()
 						await User.updateOne({_id:user._id},{$set:{uuid:uuid,password:password,token:token,referredByCode:referredByCode,referredByUserID:referredByUserID,referralCode:referralCode}}).exec()
-						user = await User.findOne({_id:user._id},{token:1,email:1,username:1}).exec()
+						user = await User.findOne({_id:user._id},{token:1,email:1,username:1,firstName:1,lastName:1}).exec()
 						return res.status(200).json({
 							status:1,
 							message: `User registered successfully. A verification link has been sent to your email address. Please verify`,
@@ -100,6 +101,68 @@ exports.register = async (req, res) => {
 		console.log(`In main catch error: ${error.message}`)
 		return res.status(500).json({
 			status:0,
+			message: `${error.message}`
+		})
+	}
+}
+
+let getUserDetails = async (userID,fields = {}) => {
+	try
+	{
+		console.log(`in getUserDetails ${userID}`)
+		return new Promise(async resolve => {
+			if(userID)
+			{
+				return resolve(await User.findOne({_id:userID},fields).exec())
+			}
+			else
+			{
+				return resolve({})
+			}
+		})
+	}
+	catch(error)
+	{
+		return res.status(500).json({
+			status: 0,
+			message: `${error.message}`
+		})
+	}
+}
+
+let getSuccessReferrals = async (userID,fields = {}) => {
+	try
+	{
+		return new Promise(async resolve => {
+			let successReferrals = []
+			console.log(`referredByUserID ${userID}`)
+			let users = await User.find({referredByUserID:userID,emailVerified:true,isDeleted:false},fields).exec()
+			if(users)
+			{
+				let totalUsers = users.length
+				console.log(`in getSuccessReferrals totalUsers ${totalUsers}`)
+				for(let i=0;i<totalUsers;i++)
+				{
+					console.log(`users[i]._id ${users[i]._id}`)
+					await getUserDetails(users[i]._id,fields).then(user => {
+						console.log(`user ${JSON.stringify(user)}`)
+						successReferrals.push(user)
+					}).catch(error => {
+						console.log(`in getSuccessReferrals catch error ${error.message}`)
+					})
+				}
+				return resolve(successReferrals)
+			}
+			else
+			{
+				return resolve(successReferrals)
+			}
+		})
+	}
+	catch(error)
+	{
+		return res.status(500).json({
+			status: 0,
 			message: `${error.message}`
 		})
 	}
@@ -127,13 +190,18 @@ exports.login = async (req, res) => {
 			{
 				if(user.emailVerified)
 				{
-					user.token = generateToken(user)
+					user.token = generateToken({email:user.email,username:user.username,userID:user._id})
 					user.save()
-					user = await User.findOne({email:email,isDeleted:false},{token:1,email:1,username:1,referralCode:1}).exec()
+					user = await User.findOne({email:user.email,isDeleted:false},{token:1,email:1,username:1,referralCode:1,firstName:1,lastName:1,referredByUserID:1,mobileNumber:1,countryCode:1}).exec()
+					let fields = {email:1,firstName:1,lastName:1,mobileNumber:1,countryCode:1,createdAt:1}
+					let referredBy = await getUserDetails(user.referredByUserID,fields)
+					let successReferrals = await getSuccessReferrals(user._id,fields)
 					return res.status(200).json({
 						status:1,
 						message: `Login success`,
-						user
+						user,
+						referredBy,
+						successReferrals
 					})
 				}
 				else

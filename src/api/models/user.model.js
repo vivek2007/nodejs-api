@@ -17,6 +17,22 @@ const userSchema = new mongoose.Schema({
   	type: String,
   	default:""
   },
+  mobileNumber : {
+  	type: String,
+  	default:""
+  },
+  countryCode : {
+  	type: String,
+  	default:""
+  },
+  firstName : {
+  	type: String,
+  	default:""
+  },
+  lastName : {
+  	type: String,
+  	default:""
+  },
   referralCode : {
   	type: String,
   	default:""
