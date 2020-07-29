@@ -78,7 +78,7 @@ exports.register = async (req, res) => {
 						let token = generateToken(user)
 						let referralCode = Math.random().toString(36).slice(2).toUpperCase()
 						await User.updateOne({_id:user._id},{$set:{uuid:uuid,password:password,token:token,referredByCode:referredByCode,referredByUserID:referredByUserID,referralCode:referralCode}}).exec()
-						user = await User.findOne({_id:user._id},{token:1,email:1,username:1,referralCode:1}).exec()
+						user = await User.findOne({_id:user._id},{token:1,email:1,username:1}).exec()
 						return res.status(200).json({
 							status:1,
 							message: `User registered successfully. A verification link has been sent to your email address. Please verify`,
