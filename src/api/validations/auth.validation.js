@@ -9,6 +9,7 @@ module.exports = {
 		  "string.regex": "Username must not contain any spaces"
 		}),
       password: Joi.string().required().min(6).max(128),
+      referredByCode: Joi.string().optional().allow('')
     }),
   },
   // POST /v1/auth/forgot-password

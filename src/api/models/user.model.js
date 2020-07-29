@@ -21,6 +21,14 @@ const userSchema = new mongoose.Schema({
   	type: String,
   	default:""
   },
+  referredByCode : {
+  	type: String,
+  	default:""
+  },
+  referredByUserID : {
+  	type: String,
+  	default:""
+  },
   password: {
     type: String,
     minlength: 6
