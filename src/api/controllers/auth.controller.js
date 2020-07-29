@@ -135,7 +135,6 @@ let getSuccessReferrals = async (userID,fields = {}) => {
 	{
 		return new Promise(async resolve => {
 			let successReferrals = []
-			console.log(`referredByUserID ${userID}`)
 			let users = await User.find({referredByUserID:userID,emailVerified:true,isDeleted:false},fields).exec()
 			if(users)
 			{
@@ -143,9 +142,7 @@ let getSuccessReferrals = async (userID,fields = {}) => {
 				console.log(`in getSuccessReferrals totalUsers ${totalUsers}`)
 				for(let i=0;i<totalUsers;i++)
 				{
-					console.log(`users[i]._id ${users[i]._id}`)
 					await getUserDetails(users[i]._id,fields).then(user => {
-						console.log(`user ${JSON.stringify(user)}`)
 						successReferrals.push(user)
 					}).catch(error => {
 						console.log(`in getSuccessReferrals catch error ${error.message}`)
