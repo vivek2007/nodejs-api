@@ -46,7 +46,7 @@ module.exports.sendVerificationEmail = async (host,email,username,token) => {
 
 module.exports.sendResetPassword = async (host,email,username,token) => {
 	console.log(`in sendResetPassword\nhost ${host},email ${email},username ${username},token ${token}`)
-	let link = `http://${process.env.UI_HOST}:{process.env.UI_PORT}/#/auth/change-password/${token}`
+	let link = `http://${process.env.UI_HOST}:${process.env.UI_PORT}/#/auth/change-password/${token}`
 	let mailOptions={
         to : email,
         subject : `Reset Password`,
