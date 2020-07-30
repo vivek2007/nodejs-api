@@ -330,11 +330,12 @@ exports.changePassword = async (req,res) => {
 	{
 		let { id, password } = req.body
 		let status = 0
-		let user = await User.findOne({uuid:id},{email:1,isDeleted:1}).exec()
+		let user = await User.findOne({uuid:id,isDeleted:false,emailVerified:true},{email:1}).exec()
 		if(user)
 		{
+			let uuid = uuidv4()
 			password = await bcrypt.hash(password, parseInt(process.env.SALT_ROUNDS))
-			await User.updateOne({email:user.email},{$set:{password:password,updatedAt:new Date()}}).exec()
+			await User.updateOne({_id:user._id},{$set:{password:password,uuid:uuid,updatedAt:new Date()}}).exec()
 			return res.status(200).json({
 				status:1,
 				message: `Password changed successfully`
