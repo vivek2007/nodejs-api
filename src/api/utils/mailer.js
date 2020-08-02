@@ -29,7 +29,7 @@ module.exports.sendReferralCode = async (host,email,username,referralCode) => {
 
 module.exports.sendVerificationEmail = async (host,email,username,token) => {
 	console.log(`in sendVerificationEmail\nhost ${host},email ${email},username ${username},token ${token}`)
-	let link = `http://${process.env.UI_HOST}:{process.env.UI_PORT}/#/auth/verify/${token}`
+	let link = `http://${process.env.UI_HOST}:${process.env.UI_PORT}/#/auth/verify/${token}`
 	let mailOptions={
         to : email,
         subject : `Verify Email`,
