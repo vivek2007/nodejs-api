@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/vivek2007/backend-node#readme",
   "dependencies": {
+    "authorizenet": "^1.0.7",
     "bcryptjs": "^2.4.3",
     "bluebird": "^3.7.2",
     "cors": "^2.8.5",
