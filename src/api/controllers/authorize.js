@@ -1,13 +1,12 @@
 'use strict';
-
 var ApiContracts = require('authorizenet').APIContracts;
 var ApiControllers = require('authorizenet').APIControllers;
 var SDKConstants = require('authorizenet').Constants;
 
-function chargeCreditCard(callback) {
+module.exports.chargeCreditCard = (callback) => {
 	var merchantAuthenticationType = new ApiContracts.MerchantAuthenticationType();
-	merchantAuthenticationType.setName('');
-	merchantAuthenticationType.setTransactionKey('');
+	merchantAuthenticationType.setName('79bhhgPH5k');
+	merchantAuthenticationType.setTransactionKey('6E88QFsqPF7855m8');
 
 	var creditCard = new ApiContracts.CreditCardType();
 	creditCard.setCardNumber('4242424242424242');
@@ -183,5 +182,3 @@ if (require.main === module) {
 		console.log('chargeCreditCard call complete.');
 	});
 }
-
-module.exports.chargeCreditCard = chargeCreditCard;

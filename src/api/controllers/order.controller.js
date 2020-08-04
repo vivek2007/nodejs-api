@@ -1,5 +1,6 @@
 const User = require('../models/user.model')
 const Order = require('../models/order.model')
+const pay = require('./authorize')
 const mongoose = require("mongoose")
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
@@ -36,23 +37,23 @@ let isValidUser = async (userID) => {
 exports.order = async (req, res) => {
 	try 
 	{
-		let { totalClicks, userID, launchDate, websites } = req.body
-		if(await isValidUser(userID))
+		let { totalClicks, userID, launchDate, websites, cardNumber, cardType, expiry, cvv } = req.body
+		let validUser = await isValidUser(userID)
+		if(validUser)
 		{
-			Order.create(req.body).then(async (error,order) => {
-				if(error)
-				{
-					return res.status(404).json({
-						status: 0,
-						message: `Error in saving order. Internal server error`,
-						error: error
+			Order.create(req.body).then(async order => {
+				pay.chargeCreditCard(async response => {
+					return res.status(200).json({
+						status: 1,
+						message: `Order saved succesfully`,
+						orderDetails:response
 					})
-				}
-				return res.status(200).json({
+				})
+				/*return res.status(200).json({
 					status: 1,
 					message: `Order saved succesfully`,
 					orderDetails:order
-				})
+				})*/
 			})
 		}
 		else

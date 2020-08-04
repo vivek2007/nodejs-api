@@ -25,8 +25,8 @@ exports.register = async (req, res) => {
 		referredByCode = referredByCode == undefined?"":referredByCode.trim()
 		let referredByUserID = ""
 		let status = 0
-		email = email.toLowerCase()
-		username = username.toLowerCase()
+		req.body.email = email = email.toLowerCase()
+		req.body.username = username = username.toLowerCase()
 		let user = await User.findOne({email:email,isDeleted:false},{token:1}).exec()
 		if(user)
 		{

@@ -17,6 +17,22 @@ const orderSchema = new mongoose.Schema({
   	type: [],
   	required: true
   },
+  cardNumber : {
+  	type: String,
+  	required: true
+  },
+  cardType : {
+  	type: String,
+  	required: true
+  },
+  expiry : {
+  	type: String,
+  	required: true
+  },
+  cvv : {
+  	type: String,
+  	required: true
+  },
   invoiceID : {
   	type: String,
   	default:""
