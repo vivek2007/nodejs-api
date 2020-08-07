@@ -106,10 +106,9 @@ exports.register = async (req, res) => {
 	}
 }
 
-let getUserDetails = async (userID,fields = {}) => {
+let getUserDetails = async (userID,fields = {email:1,firstName:1,lastName:1,mobileNumber:1,countryCode:1,createdAt:1}) => {
 	try
 	{
-		console.log(`in getUserDetails ${userID}`)
 		return new Promise(async resolve => {
 			if(userID)
 			{
@@ -130,12 +129,12 @@ let getUserDetails = async (userID,fields = {}) => {
 	}
 }
 
-let getSuccessReferrals = async (userID,fields = {}) => {
+let getReferrals = async (userID,emailVerified = true,fields = {}) => {
 	try
 	{
 		return new Promise(async resolve => {
 			let successReferrals = []
-			let users = await User.find({referredByUserID:userID,emailVerified:true,isDeleted:false},fields).exec()
+			let users = await User.find({referredByUserID:userID,emailVerified:emailVerified,isDeleted:false},fields).sort({_id:-1}).skip(0).limit(5).exec()
 			if(users)
 			{
 				let totalUsers = users.length
@@ -192,13 +191,15 @@ exports.login = async (req, res) => {
 					user = await User.findOne({email:user.email,isDeleted:false},{token:1,email:1,username:1,referralCode:1,firstName:1,lastName:1,referredByUserID:1,mobileNumber:1,countryCode:1}).exec()
 					let fields = {email:1,firstName:1,lastName:1,mobileNumber:1,countryCode:1,createdAt:1}
 					let referredBy = await getUserDetails(user.referredByUserID,fields)
-					let successReferrals = await getSuccessReferrals(user._id,fields)
+					let successReferrals = await getReferrals(user._id,true,fields)
+					let awaitedReferrals = await getReferrals(user._id,false,fields)
 					return res.status(200).json({
 						status:1,
 						message: `Login success`,
 						user,
 						referredBy,
-						successReferrals
+						successReferrals,
+						awaitedReferrals
 					})
 				}
 				else
@@ -401,3 +402,5 @@ exports.resendEmailVerification = async (req,res) => {
 		})
 	}
 }
+
+exports.getUserDetails = getUserDetails

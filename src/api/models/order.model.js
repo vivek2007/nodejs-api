@@ -1,4 +1,6 @@
 const mongoose = require('mongoose')
+autoIncrement = require('mongoose-auto-increment')
+autoIncrement.initialize(mongoose.connection)
 
 const orderSchema = new mongoose.Schema({
   userID : {
@@ -17,6 +19,9 @@ const orderSchema = new mongoose.Schema({
   	type: [],
   	required: true
   },
+  amount : {
+  	type: Number
+  },
   cardNumber : {
   	type: String,
   	required: true
@@ -34,12 +39,15 @@ const orderSchema = new mongoose.Schema({
   	required: true
   },
   invoiceID : {
-  	type: String,
-  	default:""
+  	type: Number
   },
   paymentStatus : {
   	type: Number,
   	default:0
+  },
+  transactionID : {
+  	type: String,
+  	default:""
   },
   updatedAt:{
     type: Date,
@@ -54,5 +62,7 @@ const orderSchema = new mongoose.Schema({
 }, {
   usePushEach: true,
 })
+
+orderSchema.plugin(autoIncrement.plugin, { model: 'Order', field: 'invoiceID' })
 
 module.exports = mongoose.model('Order', orderSchema);
