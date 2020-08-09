@@ -84,7 +84,7 @@ exports.createPost = async (req,res) => {
 					post.categoryName = categoryName
 					return res.status(200).json({
 						status: 1,
-						message: `Post created succesfully`,
+						message: `Post created successfully`,
 						postDetails:post
 					})
 				})
@@ -131,7 +131,7 @@ exports.updatePost = async (req,res) => {
 					await Blog.updateOne({_id:postID},{$set:{ title:title, type:type, categoryID:categoryID, description:description }}).exec()
 					return res.status(200).json({
 						status: 1,
-						message: `Post updated succesfully`
+						message: `Post updated successfully`
 					})
 				}
 				else
@@ -264,8 +264,26 @@ let getReplies = async (commentID) => {
 	try
 	{
 		return new Promise(async resolve => {
-			let replies = await Reply.find({ commentID:commentID, isDeleted:false },{ comment:1,createdAt:1 }).exec()
-			return resolve(replies)
+			let commentReplies = await Reply.find({ commentID:commentID, isDeleted:false },{ comment:1,createdAt:1 }).exec()
+			let totalReplies = commentReplies.length
+			let replies = []
+			if(totalReplies)
+			{
+				for(let i=0;i<totalReplies;i++)
+				{
+					let reply = JSON.parse(JSON.stringify(commentReplies[i]))
+					reply.subcomments = await Subcomment.find({replyID:reply._id},{ comment:1,createdAt:1 }).exec()
+					replies.push(reply)
+					if(i == (totalReplies - 1))
+					{
+						return resolve(replies)
+					}
+				}
+			}
+			else
+			{
+				return resolve(replies)
+			}
 		})
 	}
 	catch (error) 
@@ -280,7 +298,7 @@ let getComments = async (postID) => {
 		return new Promise(async resolve => {
 			let comments = []
 			let postComments = await Comment.find({ postID:postID, isDeleted:false }, { comment:1,createdAt:1 }).exec()
-			if(postComments)
+			if(postComments.length)
 			{
 				let totalComments = postComments.length
 				for(let i=0;i<totalComments;i++)
@@ -366,7 +384,8 @@ exports.addComment = async (req,res) => {
 					await Blog.updateOne({_id:postID},{$inc:{commentsCount:1}}).exec()
 					return res.status(200).json({
 						status: 1,
-						message: `Comment added succesfully`
+						message: `Comment added successfully`,
+						comment
 					})
 				})
 			}
@@ -374,7 +393,8 @@ exports.addComment = async (req,res) => {
 			{
 				return res.status(404).json({
 					status: 0,
-					message: `Post not found`
+					message: `Post not found`,
+					comment
 				})
 			}
 		}
@@ -409,9 +429,11 @@ exports.updateComment = async (req,res) => {
 				if(commentDetails.userID == userID)
 				{
 					await Comment.updateOne({_id:commentID},{$set:{comment:comment,updatedAt:new Date()}}).exec()
+					commentDetails = await Comment.findOne({_id:commentID}).exec()
 					return res.status(200).json({
 						status: 1,
-						message: `Comment updated succesfully`,
+						message: `Comment updated successfully`,
+						comment:commentDetails
 					})
 				}
 				else
@@ -464,7 +486,8 @@ exports.addReply = async (req,res) => {
 					Reply.create(req.body).then(async reply => {
 						return res.status(200).json({
 							status: 1,
-							message: `Reply added succesfully`
+							message: `Reply added successfully`,
+							reply
 						})
 					})
 				}
@@ -515,9 +538,11 @@ exports.updateReply = async (req,res) => {
 				if(replyDetails.userID == userID)
 				{
 					await Reply.updateOne({_id:replyID},{$set:{comment:comment,updatedAt:new Date()}}).exec()
+					let reply = await Reply.findOne({_id:replyID}).exec()
 					return res.status(200).json({
 						status: 1,
-						message: `Reply updated succesfully`,
+						message: `Reply updated successfully`,
+						reply
 					})
 				}
 				else
@@ -573,7 +598,8 @@ exports.addSubcomment = async (req,res) => {
 						Subcomment.create(req.body).then(async subcomment => {
 							return res.status(200).json({
 								status: 1,
-								message: `Subcomment added succesfully`
+								message: `Subcomment added successfully`,
+								subcomment
 							})
 						})
 					}
@@ -626,15 +652,17 @@ exports.updateSubcomment = async (req,res) => {
 		let validUser = await isValidUser(userID)
 		if(validUser)
 		{
-			let subcommentIDDetails = await Subcomment.findOne({_id:subcommentID},{ userID:1 }).exec()
-			if(subcommentIDDetails)
+			let subcommentDetails = await Subcomment.findOne({_id:subcommentID},{ userID:1 }).exec()
+			if(subcommentDetails)
 			{
-				if(subcommentIDDetails.userID == userID)
+				if(subcommentDetails.userID == userID)
 				{
 					await Subcomment.updateOne({_id:subcommentID},{$set:{comment:comment,updatedAt:new Date()}}).exec()
+					subcommentDetails = await Subcomment.findOne({_id:subcommentID}).exec()
 					return res.status(200).json({
 						status: 1,
-						message: `Comment updated succesfully`,
+						message: `Comment updated successfully`,
+						subcomment:subcommentDetails
 					})
 				}
 				else
@@ -686,6 +714,7 @@ exports.deletePost = async (req,res) => {
 					await Blog.updateOne({_id:postID},{$set:{isDeleted:true}}).exec()
 					await Comment.updateOne({postID:postID},{$set:{isDeleted:true}}).exec()
 					await Reply.updateOne({postID:postID},{$set:{isDeleted:true}}).exec()
+					await Subcomment.updateOne({postID:postID},{$set:{isDeleted:true}}).exec()
 					return res.status(200).json({
 						status: 1,
 						message: `Post deleted successfully`
@@ -740,6 +769,7 @@ exports.deleteComment = async (req,res) => {
 					await Blog.updateOne({_id:comment.postID},{$inc:{commentsCount:-1}}).exec()
 					await Comment.updateOne({_id:commentID},{$set:{isDeleted:true}}).exec()
 					await Reply.updateOne({commentID:commentID},{$set:{isDeleted:true}}).exec()
+					await Subcomment.updateOne({commentID:commentID},{$set:{isDeleted:true}}).exec()
 					return res.status(200).json({
 						status: 1,
 						message: `Comment deleted successfully`
@@ -792,6 +822,7 @@ exports.deleteReply = async (req,res) => {
 				if(reply.userID == userID)
 				{
 					await Reply.updateOne({_id:replyID},{$set:{isDeleted:true}}).exec()
+					await Subcomment.updateOne({replyID:replyID},{$set:{isDeleted:true}}).exec()
 					return res.status(200).json({
 						status: 1,
 						message: `Reply deleted successfully`
@@ -810,6 +841,58 @@ exports.deleteReply = async (req,res) => {
 				return res.status(404).json({
 					status: 0,
 					message: `Reply not found`
+				})
+			}
+		}
+		else
+		{
+			return res.status(404).json({
+				status: 0,
+				message: `User not found`
+			})
+		}
+	}
+	catch (error) 
+	{
+		console.log(`In main catch error: ${error.message}`)
+		return res.status(500).json({
+			status:0,
+			message: `${error.message}`
+		})
+	}
+}
+
+exports.deleteSubcomment = async (req,res) => {
+	try 
+	{
+		let { userID, subcommentID } = req.body
+		let validUser = await isValidUser(userID)
+		if(validUser)
+		{
+			let subcomment = await Subcomment.findOne({_id:subcommentID,isDeleted:false},{ userID:1 }).exec()
+			if(subcomment)
+			{
+				if(subcomment.userID == userID)
+				{
+					await Subcomment.updateOne({_id:subcommentID},{$set:{isDeleted:true}}).exec()
+					return res.status(200).json({
+						status: 1,
+						message: `Subcomment deleted successfully`
+					})
+				}
+				else
+				{
+					return res.status(401).json({
+						status: 0,
+						message: `Unauthorized access!! You cannot delete comment of other user`
+					})
+				}
+			}
+			else
+			{
+				return res.status(404).json({
+					status: 0,
+					message: `Subcomment not found`
 				})
 			}
 		}

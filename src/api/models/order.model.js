@@ -11,6 +11,10 @@ const orderSchema = new mongoose.Schema({
   	type: Number,
   	required: true
   },
+  additionalClicks : {
+  	type: Number,
+  	default: 0
+  },
   launchDate : {
   	type: Date,
   	required: true

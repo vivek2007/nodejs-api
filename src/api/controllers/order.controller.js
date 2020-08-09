@@ -38,22 +38,43 @@ let isValidUser = async (userID) => {
 exports.order = async (req, res) => {
 	try 
 	{
-		let { totalClicks, userID, launchDate, websites, cardNumber, cardType, expiry, cvv, amount } = req.body
-		if(!amount)
+		let { totalClicks, userID, launchDate, websites, cardNumber, cardType, expiry, cvv, amount, transactionID } = req.body
+		if(transactionID != "")
 		{
-			req.body.amount = 100
+			req.body.paymentStatus = 1
 		}
 		let validUser = await isValidUser(userID)
 		if(validUser)
 		{
 			Order.create(req.body).then(async order => {
-				/*pay.chargeCreditCard(async response => {
-					return res.status(200).json({
-						status: 1,
-						message: `Order saved succesfully`,
-						orderDetails:response
-					})
-				})*/
+				if(transactionID != "")
+				{
+					let user = await User.findOne({_id:userID},{ totalClicksPurchased:1 }).exec()
+					let totalClicksPurchased = user.totalClicksPurchased + totalClicks
+					let additionalClicks = 0
+					if(totalClicksPurchased >= 1000 && totalClicksPurchased < 2500)
+					{
+						additionalClicks = parseInt(totalClicks / 5)
+					}
+					else if(totalClicksPurchased >= 2500 && totalClicksPurchased < 5000)
+					{
+						additionalClicks = parseInt(totalClicks / 4)
+					}
+					else if(totalClicksPurchased >= 5000 && totalClicksPurchased < 7500)
+					{
+						additionalClicks = parseInt(totalClicks / 3)
+					}
+					else if(totalClicksPurchased >= 7500 && totalClicksPurchased < 10000)
+					{
+						additionalClicks = parseInt(totalClicks / 2)
+					}
+					else if(totalClicksPurchased >= 10000)
+					{
+						additionalClicks = totalClicks
+					}
+					await User.updateOne({_id:userID},{$inc:{ totalClicksPurchased:totalClicks }}).exec()
+					await Order.updateOne({_id:order._id},{$set:{ additionalClicks:additionalClicks }}).exec()
+				}
 				return res.status(200).json({
 					status: 1,
 					message: `Order saved succesfully`,
@@ -91,7 +112,7 @@ exports.getOrders = async (req, res) => {
 			const totalOrders = orders.length
 			if(orders)
 			{
-				orders = await Order.find({userID:userID},{websites:1,invoiceID:1,paymentStatus:1,createdAt:1,userID:1,totalClicks:1,launchDate:1,cardNumber:1,cardType:1,amount:1}).sort({_id:-1}).skip(min).limit(max).exec()
+				orders = await Order.find({userID:userID},{websites:1,invoiceID:1,paymentStatus:1,createdAt:1,userID:1,totalClicks:1,additionalClicks:1,launchDate:1,cardNumber:1,cardType:1,amount:1}).sort({_id:-1}).skip(min).limit(max).exec()
 				let ordersLength = orders.length
 				if(ordersLength == 0)
 				{
@@ -151,12 +172,70 @@ exports.getOrders = async (req, res) => {
 exports.getMembershipLevels = async (req,res) => {
 	try
 	{
-		let membershipLevels = await Membershiplevel.find({},{ level:1,clicks:1,description:1 }).exec()
-		return res.status(200).json({
-			status: 1,
-			message: `Details found`,
-			membershipLevels
-		})
+		let { userID } = req.body
+		let user = await User.findOne({_id:userID},{ totalClicksPurchased:1 }).exec()
+		if(user)
+		{
+			let totalClicksPurchased = user.totalClicksPurchased
+			let membershipLevels = await Membershiplevel.find({},{ level:1,clicks:1,description:1 }).exec()
+			let totalLevels = membershipLevels.length
+			if(totalLevels)
+			{
+				let levels = []
+				let message = `Currently your account level is none`
+				for(let i=0;i<totalLevels;i++)
+				{
+					let membershipLevel = JSON.parse(JSON.stringify(membershipLevels[i]))
+					membershipLevel.clicksLeft = membershipLevel.clicks - totalClicksPurchased
+					levels.push(membershipLevel)
+					if(totalClicksPurchased >= 1000 && totalClicksPurchased < 2500)
+					{
+						message = `Currently your account is level-1`
+					}
+					else if(totalClicksPurchased >= 2500 && totalClicksPurchased < 5000)
+					{
+						message = `Currently your account is level-2`
+					}
+					else if(totalClicksPurchased >= 5000 && totalClicksPurchased < 7500)
+					{
+						message = `Currently your account is level-3`
+					}
+					else if(totalClicksPurchased >= 7500 && totalClicksPurchased < 10000)
+					{
+						message = `Currently your account is level-4`
+					}
+					else if(totalClicksPurchased >= 10000)
+					{
+						message = `Currently your account is level-5`
+					}
+					if(i == (totalLevels - 1))
+					{
+						return res.status(200).json({
+							status: 1,
+							message,
+							totalClicksPurchased,
+							membershipLevels:levels
+						})
+					}
+				}
+			}
+			else
+			{
+				return res.status(200).json({
+					status: 0,
+					message: `No details found`,
+					totalClicksPurchased:0,
+					membershipLevels:[]
+				})
+			}
+		}
+		else
+		{
+			return res.status(404).json({
+				status: 0,
+				message: `User not found`
+			})
+		}
 	}
 	catch (error) 
 	{

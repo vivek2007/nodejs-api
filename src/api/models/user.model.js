@@ -41,6 +41,10 @@ const userSchema = new mongoose.Schema({
   	type: String,
   	default:""
   },
+  totalClicksPurchased: {
+	  type: Number,
+	  default: 0
+  },
   referredByUserID : {
   	type: String,
   	default:""
