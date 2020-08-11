@@ -264,7 +264,7 @@ let getReplies = async (commentID) => {
 	try
 	{
 		return new Promise(async resolve => {
-			let commentReplies = await Reply.find({ commentID:commentID, isDeleted:false },{ comment:1,createdAt:1 }).exec()
+			let commentReplies = await Reply.find({ commentID:commentID, isDeleted:false },{ userID:1,comment:1,createdAt:1 }).exec()
 			let totalReplies = commentReplies.length
 			let replies = []
 			if(totalReplies)
@@ -272,7 +272,24 @@ let getReplies = async (commentID) => {
 				for(let i=0;i<totalReplies;i++)
 				{
 					let reply = JSON.parse(JSON.stringify(commentReplies[i]))
-					reply.subcomments = await Subcomment.find({replyID:reply._id},{ comment:1,createdAt:1 }).exec()
+					reply.userDetails = await AuthController.getUserDetails(reply.userID)
+					let subcomments = await Subcomment.find({replyID:reply._id},{ userID:1,comment:1,createdAt:1 }).exec()
+					let totalSubcomments = subcomments.length
+					if(totalSubcomments)
+					{
+						let details = []
+						for(let j=0;j<totalSubcomments;j++)
+						{
+							let subcomment = JSON.parse(JSON.stringify(subcomments[j]))
+							subcomment.userDetails = await AuthController.getUserDetails(subcomment.userID)
+							details.push(subcomment)
+						}
+						reply.subcomments = details
+					}
+					else
+					{
+						reply.subcomments = []
+					}
 					replies.push(reply)
 					if(i == (totalReplies - 1))
 					{
@@ -297,13 +314,14 @@ let getComments = async (postID) => {
 	{
 		return new Promise(async resolve => {
 			let comments = []
-			let postComments = await Comment.find({ postID:postID, isDeleted:false }, { comment:1,createdAt:1 }).exec()
+			let postComments = await Comment.find({ postID:postID, isDeleted:false }, { userID:1,comment:1,createdAt:1 }).exec()
 			if(postComments.length)
 			{
 				let totalComments = postComments.length
 				for(let i=0;i<totalComments;i++)
 				{
 					let comment = JSON.parse(JSON.stringify(postComments[i]))
+					comment.userDetails = await AuthController.getUserDetails(comment.userID)
 					comment.replies = await getReplies(comment._id)
 					comments.push(comment)
 					if(i == (totalComments - 1))

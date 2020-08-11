@@ -1,6 +1,9 @@
 const User = require('../models/user.model')
 const Order = require('../models/order.model')
 const Membershiplevel = require('../models/membershiplevel.model')
+const Professionalfeature = require('../models/professionalfeature.model')
+const Professionalfeatureorder = require('../models/professionalfeatureorder.model')
+const Cartitem = require('../models/cartitem.model')
 const pay = require('./authorize')
 const mongoose = require("mongoose")
 const bcrypt = require('bcryptjs')
@@ -187,6 +190,7 @@ exports.getMembershipLevels = async (req,res) => {
 				{
 					let membershipLevel = JSON.parse(JSON.stringify(membershipLevels[i]))
 					membershipLevel.clicksLeft = membershipLevel.clicks - totalClicksPurchased
+					membershipLevel.clicksLeft = (membershipLevel.clicksLeft < 0)?0:membershipLevel.clicksLeft
 					levels.push(membershipLevel)
 					if(totalClicksPurchased >= 1000 && totalClicksPurchased < 2500)
 					{
@@ -260,6 +264,274 @@ exports.updatePaymentStatus = async (req,res) => {
 				if(order.userID == userID)
 				{
 					await Order.updateOne({_id:orderID},{$set:{ paymentStatus:1, transactionID:transactionID, updatedAt:new Date() }})
+					return res.status(200).json({
+						status: 1,
+						message: `Payment status updated successfully`
+					})
+				}
+				else
+				{
+					return res.status(401).json({
+						status: 0,
+						message: `Unauthorized access!! You cannot update order payment details of some other user`
+					})
+				}
+			}
+			else
+			{
+				return res.status(404).json({
+					status: 0,
+					message: `Order not found`
+				})
+			}
+		}
+		else
+		{
+			return res.status(404).json({
+				status: 0,
+				message: `User not found`
+			})
+		}
+	}
+	catch (error) 
+	{
+		console.log(`In main catch error: ${error.message}`)
+		return res.status(500).json({
+			status:0,
+			message: `${error.message}`
+		})
+	}
+}
+
+exports.getProfessionalFeatures = async (req,res) => {
+	try
+	{
+		let { userID } = req.body
+		let user = await User.findOne({_id:userID},{ totalClicksPurchased:1 }).exec()
+		if(user)
+		{
+			let professionalFeatures = []
+			let features = await Professionalfeature.find({},{ name:1,amount:1,description:1 }).exec()
+			let totalFeatures = features.length
+			if(totalFeatures)
+			{
+				for(let i=0;i<totalFeatures;i++)
+				{
+					let feature = JSON.parse(JSON.stringify(features[i]))
+					let userCart = await Cartitem.findOne({userID:userID,featureID:feature._id,orderID:""}).exec()
+					feature.itemAddedToCart = false
+					if(userCart)
+					{
+						feature.itemAddedToCart = true
+					}
+					professionalFeatures.push(feature)
+					if(i == (totalFeatures - 1))
+					{
+						return res.status(200).json({
+							status: 1,
+							message: `Features found`,
+							professionalFeatures
+						})
+					}
+				}
+			}
+			else
+			{
+				return res.status(200).json({
+					status: 0,
+					message: `No features found`
+				})
+			}
+		}
+		else
+		{
+			return res.status(404).json({
+				status: 0,
+				message: `User not found`
+			})
+		}
+	}
+	catch (error) 
+	{
+		console.log(`In main catch error: ${error.message}`)
+		return res.status(500).json({
+			status:0,
+			message: `${error.message}`
+		})
+	}
+}
+
+exports.addToCart = async (req,res) => {
+	try
+	{
+		let { userID, featureID, featureType } = req.body
+		let user = await User.findOne({_id:userID},{ totalClicksPurchased:1 }).exec()
+		if(user)
+		{
+			let professionalFeatures = []
+			let feature = await Professionalfeature.findOne({_id:featureID},{ amount:1 }).exec()
+			if(feature)
+			{
+				let userCart = await Cartitem.findOne({userID:userID,featureID:featureID,orderID:""}).exec()
+				if(!userCart)
+				{
+					let cartItem = {
+						userID,
+						featureID,
+						featureType,
+						amount:feature.amount
+					}
+					Cartitem.create(cartItem).then(async cart => {
+						return res.status(200).json({
+							status: 1,
+							message: `Item added to cart`,
+							cart
+						})
+					})
+				}
+				else
+				{
+					return res.status(200).json({
+						status: 0,
+						message: `Item already added to cart`
+					})
+				}
+			}
+			else
+			{
+				return res.status(404).json({
+					status: 0,
+					message: `Feature not found`
+				})
+			}
+		}
+		else
+		{
+			return res.status(404).json({
+				status: 0,
+				message: `User not found`
+			})
+		}
+	}
+	catch (error) 
+	{
+		console.log(`In main catch error: ${error.message}`)
+		return res.status(500).json({
+			status:0,
+			message: `${error.message}`
+		})
+	}
+}
+
+exports.removeFromCart = async (req,res) => {
+	try
+	{
+		let { userID, featureID } = req.body
+		let user = await User.findOne({_id:userID},{ totalClicksPurchased:1 }).exec()
+		if(user)
+		{
+			let professionalFeatures = []
+			let feature = await Professionalfeature.findOne({_id:featureID},{ amount:1 }).exec()
+			if(feature)
+			{
+				await Cartitem.deleteOne({userID:userID,featureID:featureID,orderID:""}).exec()
+				return res.status(200).json({
+					status: 1,
+					message: `Item removed from cart`
+				})
+			}
+			else
+			{
+				return res.status(404).json({
+					status: 0,
+					message: `Feature not found`
+				})
+			}
+		}
+		else
+		{
+			return res.status(404).json({
+				status: 0,
+				message: `User not found`
+			})
+		}
+	}
+	catch (error) 
+	{
+		console.log(`In main catch error: ${error.message}`)
+		return res.status(500).json({
+			status:0,
+			message: `${error.message}`
+		})
+	}
+}
+
+exports.orderProfessionalFeature = async (req,res) => {
+	try
+	{
+		let { userID, cardNumber, cardType, expiry, cvv } = req.body
+		let user = await User.findOne({_id:userID},{ totalClicksPurchased:1 }).exec()
+		if(user)
+		{
+			let cartItems = await Cartitem.find({userID:userID,orderID:""},{ amount:1}).exec()
+			let totalItems = cartItems.length
+			if(totalItems)
+			{
+				req.body.orderAmount = 0
+				for(let i=0;i<totalItems;i++)
+				{
+					req.body.orderAmount += cartItems[i].amount
+				}
+				Professionalfeatureorder.create(req.body).then(async order => {
+					await Cartitem.updateMany({userID:userID,orderID:""},{$set:{orderID:order._id}}).exec()
+					order = JSON.parse(JSON.stringify(order))
+					order.cartItems = await Cartitem.find({userID:userID,orderID:order._id},{ userID:1, featureID:1, featureType:1, amount:1}).exec()
+					return res.status(200).json({
+						status: 1,
+						message: `Order placed successfully.`,
+						order
+					})
+				})
+			}
+			else
+			{
+				return res.status(404).json({
+					status: 0,
+					message: `Your cart is empty. Please add items to cart and continue.`
+				})
+			}
+		}
+		else
+		{
+			return res.status(404).json({
+				status: 0,
+				message: `User not found`
+			})
+		}
+	}
+	catch (error) 
+	{
+		console.log(`In main catch error: ${error.message}`)
+		return res.status(500).json({
+			status:0,
+			message: `${error.message}`
+		})
+	}
+}
+
+exports.updateProfessionalOrderPaymentStatus = async (req,res) => {
+	try
+	{
+		let { userID, orderID, transactionID } = req.body
+		let validUser = await isValidUser(userID)
+		if(validUser)
+		{
+			let order = await Professionalfeatureorder.findOne({_id:orderID},{ userID:1 }).exec()
+			if(order)
+			{
+				if(order.userID == userID)
+				{
+					await Professionalfeatureorder.updateOne({_id:orderID},{$set:{ paymentStatus:1, transactionID:transactionID, updatedAt:new Date() }})
 					return res.status(200).json({
 						status: 1,
 						message: `Payment status updated successfully`
