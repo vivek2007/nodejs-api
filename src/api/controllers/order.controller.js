@@ -106,7 +106,10 @@ exports.order = async (req, res) => {
 exports.getOrders = async (req, res) => {
 	try 
 	{
-		let { userID, min, max } = req.body
+		let { userID, min, max, sortBy, month, year } = req.body
+		sortBy = (sortBy != undefined)?sortBy:""
+		month = (month != undefined)?month:0
+		year = (year != undefined)?year:0
 		let validUser = await isValidUser(userID)
 		if(validUser)
 		{
@@ -115,7 +118,16 @@ exports.getOrders = async (req, res) => {
 			const totalOrders = orders.length
 			if(orders)
 			{
-				orders = await Order.find({userID:userID},{websites:1,invoiceID:1,paymentStatus:1,createdAt:1,userID:1,totalClicks:1,additionalClicks:1,launchDate:1,cardNumber:1,cardType:1,amount:1}).sort({_id:-1}).skip(min).limit(max).exec()
+				if(month && year)
+				{
+					let fromDate = new Date(`${year}-${month}-01`)
+					let toDate = new Date(`${year}-${month}-31`)
+					orders = await Order.find({userID:userID,launchDate:{$gte:fromDate,$lte:toDate}},{websites:1,invoiceID:1,paymentStatus:1,createdAt:1,userID:1,totalClicks:1,additionalClicks:1,launchDate:1,cardNumber:1,cardType:1,amount:1}).sort({launchDate:1}).skip(min).limit(max).exec()
+				}
+				else
+				{
+					orders = await Order.find({userID:userID},{websites:1,invoiceID:1,paymentStatus:1,createdAt:1,userID:1,totalClicks:1,additionalClicks:1,launchDate:1,cardNumber:1,cardType:1,amount:1}).sort({_id:-1}).skip(min).limit(max).exec()
+				}
 				let ordersLength = orders.length
 				if(ordersLength == 0)
 				{
@@ -364,7 +376,7 @@ exports.getProfessionalFeatures = async (req,res) => {
 exports.addToCart = async (req,res) => {
 	try
 	{
-		let { userID, featureID, featureType } = req.body
+		let { userID, featureID } = req.body
 		let user = await User.findOne({_id:userID},{ totalClicksPurchased:1 }).exec()
 		if(user)
 		{
@@ -378,7 +390,6 @@ exports.addToCart = async (req,res) => {
 					let cartItem = {
 						userID,
 						featureID,
-						featureType,
 						amount:feature.amount
 					}
 					Cartitem.create(cartItem).then(async cart => {
@@ -485,7 +496,7 @@ exports.orderProfessionalFeature = async (req,res) => {
 				Professionalfeatureorder.create(req.body).then(async order => {
 					await Cartitem.updateMany({userID:userID,orderID:""},{$set:{orderID:order._id}}).exec()
 					order = JSON.parse(JSON.stringify(order))
-					order.cartItems = await Cartitem.find({userID:userID,orderID:order._id},{ userID:1, featureID:1, featureType:1, amount:1}).exec()
+					order.cartItems = await Cartitem.find({userID:userID,orderID:order._id},{ userID:1, featureID:1, amount:1}).exec()
 					return res.status(200).json({
 						status: 1,
 						message: `Order placed successfully.`,

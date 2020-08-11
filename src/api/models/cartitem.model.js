@@ -13,10 +13,6 @@ const cartitemSchema = new mongoose.Schema({
   	type: String,
   	required: true
   },
-  featureType : {
-  	type: Number,
-  	required: true
-  },
   amount : {
   	type: Number,
   	default: 0
