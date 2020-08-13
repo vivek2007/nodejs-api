@@ -32,6 +32,7 @@
     "mongoose": "^5.9.25",
     "mongoose-auto-increment": "^5.0.1",
     "nodemailer": "^6.4.10",
+    "nodemailer-express-handlebars": "^4.0.0",
     "uuid": "^8.2.0"
   }
 }
