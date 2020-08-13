@@ -32,8 +32,7 @@ module.exports.sendVerificationEmail = async (host,email,username,token) => {
 	let mailOptions={
         to : email,
         subject : `Verify Email`,
-		html : `<!DOCTYPE html>
-		<html lang="en">
+		html :`<html>
 		<head>
 		  <meta charset="UTF-8"/>
 		  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -71,12 +70,10 @@ module.exports.sendVerificationEmail = async (host,email,username,token) => {
 						<td>
 						  <p>Hi there,</p>
 						  <p>
-							Please Click on the button  belowto Verify Your Account
+							Please Click on the Link  below to Verify Your Account
 						  </p>
-						  <a href=${link}  className="btn btn-primary">Click here to verify</a>
-              
-					  
-						</td>
+						  <a href=${link} className="btn btn-primary">Click here to verify</a>
+						  </td>
 					  </tr>
 					</tbody>
 				  </table>
@@ -88,7 +85,8 @@ module.exports.sendVerificationEmail = async (host,email,username,token) => {
 		</div>
 		</body>
 		</html>`
-		//`Dear ${username},<br> Please click <a href="${link}">here</a> to verify your email.`
+		
+		// `Dear ${username},<br> Please click <a href="${link}">here</a> to verify your email.`
     }
     smtpTransport.sendMail(mailOptions, function(error, response){
 		if(error){
@@ -105,7 +103,17 @@ module.exports.sendResetPassword = async (host,email,username,token) => {
 	let mailOptions={
         to : email,
         subject : `Reset Password`,
-        html : `Dear ${username},<br> Please click <a href="${link}">here</a> to reset your password.`
+        html : `<tbody>
+		<tr>
+		  <td>
+			<p>Hi there,</p>
+			<p>
+			  Please Click on the Link  below to Reset password of your Account
+			</p>
+			<a href=${link} className="btn btn-primary">Click here to reset password</a>
+			</td>
+		</tr>
+	  </tbody>`
     }
     smtpTransport.sendMail(mailOptions, function(error, response){
 		if(error){
