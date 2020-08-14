@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+ 
+</head>
+
+<body>
+    <div style="background-color:rgb(236, 239, 244);background-image:none;background-repeat:repeat;background-position:top left;background-attachment:scroll;padding-top:50px;padding-bottom:50px;padding-right:20px;padding-left:20px;color:rgb(81, 77, 106);border-radius:5px;" >
+        <div style="max-width:700px;margin-top:0px;margin-bottom:0px;margin-right:auto;margin-left:auto;font-size:14px;" >
+            <table cellpadding="0" cellspacing="0" style="width:100%;margin-bottom:20px;border-width:0px;" >
+                <tbody>
+                    <tr>
+                        <td style="vertical-align:top;" >
+                            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAKMAAAAzCAYAAAD7CrjDAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA2ZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMy1jMDExIDY2LjE0NTY2MSwgMjAxMi8wMi8wNi0xNDo1NjoyNyAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDpEMTc0OUE1RjQ1NzdFQTExOUUxQTgyRjVDMDZCMUQyRSIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDoyQUQwRkQ2Qzc3RjYxMUVBOTNBODlDQzkzNkVGM0Y3QyIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDoyQUQwRkQ2Qjc3RjYxMUVBOTNBODlDQzkzNkVGM0Y3QyIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ1M2IChXaW5kb3dzKSI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOkQyNzQ5QTVGNDU3N0VBMTE5RTFBODJGNUMwNkIxRDJFIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOkQxNzQ5QTVGNDU3N0VBMTE5RTFBODJGNUMwNkIxRDJFIi8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+6LyLZQAABM5JREFUeNrsXb+LE0EU3sRTOJtj7QSrHIJ9TvAPyCEKFgqX5mqT+oQzQbD2ooV1UlkJJmAhiGDuDxC8VDYWXioLK8M1HohHfKNvz+dkN25mZ3cn6/fBY5K5ZDPfzDdv5s0PrjSdTj0AcAFlVAEAMQIAxAhAjAAAMQIQIwBAjADECAAQIwAxAgDECECMAJAyVrL4kdXV1S1KKmQNTiUmZB1+3VniujTieHx8rNfVofj+Jv19P+W2kW9V2X2yvYiPtzkdkI3Dyp8EpTRP7RDRBhPzF/jaQJiOIVmNX/fImoZFk8+ZWz8xPpOIoyNiVB2puyCHoIP1qIwTZ4dpIuiTDQ0IBhXT50Z2GT6Letk57nFZfAP+6rtVZ+eMSogRnqfDPb0kjfLq7P7HSzQkz+XIHlWakxyprVqUtEKG4o0QDk0xTC9NANPVeosaZtZJeO2IIWfAjbjOjZZFg0nBtLWyygZYiCM/yxWOcZyGFOKI7AKXcxTylR7/rZQWh7Jlgg0egk4biQSovGHcgg9Eo7qKGY4s7kw4Uh3vkk2F3U/AQw7NdZ4HLsLBasBpO5puaRPcuuFzXI6qc+NIwrtJySOR9ZzsieHvy4h/bOjp2jajaWuekSqqphFs24qyHMIMxwW8SdL6vcLiO8NZ78nuUh0X5hJT2XJDSY8x8IqHXDiSENcoeUW2xllfyO6QEL8leOxY85KVoopxv4BecYZjFl6RhKg84Quyy5z1new21e/nhI/Wh2WT5R1nxVjRIrMiIg+Oj8mui/dNEuK7pA+lZww0QarVga88J85l/XPFUu/1tV5VRK+YB0cVpd8T79+QfaD6rhqIL6zzqOBrqPEKtgK7InIeZRFYrlhsqKIjD4472vsbbCYohQmUhL3pza6bSmx5f5ay9tib9tIQJk7tuI2zGfyG8npqx6UZMyCrsCgPPYtbgTY94+Q/EEYeHH94GZ2sYm/XE6NAQ4ivESHKA/KsGxFTgHzEqCJnKtREDGV+QcWYNcenZLvanPFhRlzlMNwUAm2FzDE3XfKMwVJBVURmRUTWHN9yG+2IOWOfOv+znDpjh73nUPCvqQDWxlKezTmjPCBQ4wi7aPiLY0becZdFGaBLdXst5xFCD16sdEybYhxpkWejgGLMnCN5nBPv9xLMJ846R/aSBHkp5xHCOsoWK01fRG0V0DvOcMzCO1LdHlFyi+yIsy6yIM/nVA9+GsGd7aWdnlbgvuFzctsFcJUjCfIjJdtkJ5x1VSvLQlAn8flwiwnkEbqJrWi6bLkH6wcza0w67ia8qpwDL/pCkAuY4cgT+tQ5Uv2+puSByNpW5xsNeVS43H0v3n2gqE5kbfE7jTWsutY4iughVdqvRuThXG+cqhd+q85VhHIUQk2NI9Wf2qt+bJFLsMMy75ZmMD/e0oKVETsgN8WoTnXzFlNfK3iLhwdbP9UwGMqDLbGo24Eqbxry+bAJfCTHJYW8ohrHa48884PFmcwZTwVJpraYTI7Wq3nQRpL5UIYR5TJzrHvm1zs6XH6rUXUpi/92wLfQoqLPsWiUf7n8uPedTT1j1OfjzqUW5ujIvelgGuHP8e495jG3/M6LEQByG6YBAGIEIEYAgBgBiBEAIEYAYgQAiBGAGAEAYgQgRgBwAT8FGACzpI2vpXoV/AAAAABJRU5ErkJggg==" alt="Clean UI KIT Pro" style="height:40px;" >
+                            </td>
+                            <td style="text-align:right;vertical-align:middle;" >
+                                <span style="color:rgb(160, 155, 185);" >Some Description</span>
+                            </td>
+                    </tr>
+                </tbody>
+                </table>
+                    <div style="padding-top:40px;padding-bottom:20px;padding-right:40px;padding-left:40px;background-color:rgb(255, 255, 255);background-image:none;background-repeat:repeat;background-position:top left;background-attachment:scroll;" >
+                        <table cellpadding="0" cellspacing="0" style="width:100%;border-width:0px;" >
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <p>Dear {{name}},</p>
+                                        <p> Thank you for registering with Clicks. 
+                                            <br>
+                                        Your email has been verified successfully. 
+                                        <br>
+                                        Please save this referral code <b>{{code}}</>. 
+                                        <br>This referral code can be used at the time of signup of your friends and you will get benefits from clicks.`</p>
+                                       
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div style="text-align:center;font-size:12px;color:rgb(160, 155, 185);margin-top:20px;" >
+                            <p>Mediatec Software Inc., Abbey Road, San Francisco CA 94102<br>Don't like these emails? <a style="color:rgb(160, 155, 185);text-decoration:underline;" >Unsubscribe</a>
+                                <br>Powered by Clean UI KIT Pro</p>
+                    </div>
+                   </div>
+                </div>
+</body>
+
+</html>
