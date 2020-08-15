@@ -12,7 +12,7 @@ const { v4: uuidv4 } = require('uuid')
 require('dotenv').config()
 const jwtSecret = process.env.JWT_SECRET
 const jwtExpirationInterval = process.env.JWT_EXPIRATION_DAYS
-
+const {orderConfirmation, orderconfirmation} = require('../utils/mailer')
 let isValidUser = async (userID) => {
 	try
 	{
@@ -42,6 +42,7 @@ exports.order = async (req, res) => {
 	try 
 	{
 		let { totalClicks, userID, launchDate, websites, cardNumber, cardType, expiry, cvv, amount, transactionID } = req.body
+		let user = await User.findOne({$or:[{email:email},{username:email}]}).exec()
 		if(transactionID != "")
 		{
 			req.body.paymentStatus = 1
@@ -77,6 +78,7 @@ exports.order = async (req, res) => {
 					}
 					await User.updateOne({_id:userID},{$inc:{ totalClicksPurchased:totalClicks }}).exec()
 					await Order.updateOne({_id:order._id},{$set:{ additionalClicks:additionalClicks }}).exec()
+					orderconfirmation(req.get('host'),_id,user.email)
 				}
 				return res.status(200).json({
 					status: 1,

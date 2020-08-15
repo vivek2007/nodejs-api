@@ -28,7 +28,7 @@ module.exports.sendReferralCode = async (host,email,username,referralCode) => {
 	let mailOptions={
         to : email,
         subject : `Email Verified Success`,
-		html : referalcodeEmail.render({name = `${username}`, code = `${referralCode}` })
+		html : referalcodeEmail.render({name : `${username}`, code : `${referralCode}` })
     }
     smtpTransport.sendMail(mailOptions, function(error, response){
 		if(error){
@@ -64,6 +64,21 @@ module.exports.sendResetPassword = async (host,email,username,token) => {
         to : email,
         subject : `Reset Password`,
         html : resetpasswordEmail.render({link :`${link}`})
+    }
+    smtpTransport.sendMail(mailOptions, function(error, response){
+		if(error){
+			console.log(`Error in sending mail. Error: ${error}`)
+		}else{
+			console.log(`Mail sent: ${JSON.stringify(response)}`)
+		}
+	})
+}
+
+module.exports.orderconfirmation = async (host,_id,totalClicks,email) => {
+	let mailOptions={
+        to : email,
+        subject : `Order Details`,
+        html : orderDetails.render({orderID :`${_id}`, clicks :`${totalClicks}`})
     }
     smtpTransport.sendMail(mailOptions, function(error, response){
 		if(error){
