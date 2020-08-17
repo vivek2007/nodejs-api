@@ -15,6 +15,9 @@ const referalcodeEmail = Hogan.compile(referalCode)
 const resetpassword =  fs.readFileSync('./src/api/views/resetpassword.hjs',{encoding:'utf8', flag:'r'}); 
 const resetpasswordEmail = Hogan.compile(resetpassword)
 
+const orderInvoice =  fs.readFileSync('./src/api/views/orderdetails.hjs',{encoding:'utf8', flag:'r'}); 
+const orderInvoiceEmail = Hogan.compile(orderInvoice)
+
 const smtpTransport = nodemailer.createTransport({
     service: process.env.EMAIL_SERVICE,
     auth: {
@@ -74,11 +77,12 @@ module.exports.sendResetPassword = async (host,email,username,token) => {
 	})
 }
 
-module.exports.orderconfirmation = async (host,_id,totalClicks,email) => {
+module.exports.orderInvoiceEmail = async (host,_id,email,amount,products, date) => {
+	console.log(`orderInvoice ${email} ,orderid :${id} ,amount: ${amount}, products :${products}`)
 	let mailOptions={
         to : email,
         subject : `Order Details`,
-        html : orderDetails.render({orderID :`${_id}`, clicks :`${totalClicks}`})
+        html : orderInvoiceEmail.render({orderID :`${_id}`, amount:`${amount}`, clicks :`${products}`,date:`${date}`})
     }
     smtpTransport.sendMail(mailOptions, function(error, response){
 		if(error){

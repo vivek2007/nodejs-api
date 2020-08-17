@@ -12,7 +12,7 @@ const { v4: uuidv4 } = require('uuid')
 require('dotenv').config()
 const jwtSecret = process.env.JWT_SECRET
 const jwtExpirationInterval = process.env.JWT_EXPIRATION_DAYS
-const {orderConfirmation, orderconfirmation} = require('../utils/mailer')
+const {orderInvoiceEmail} = require('../utils/mailer')
 let isValidUser = async (userID) => {
 	try
 	{
@@ -42,7 +42,6 @@ exports.order = async (req, res) => {
 	try 
 	{
 		let { totalClicks, userID, launchDate, websites, cardNumber, cardType, expiry, cvv, amount, transactionID } = req.body
-		let user = await User.findOne({$or:[{email:email},{username:email}]}).exec()
 		if(transactionID != "")
 		{
 			req.body.paymentStatus = 1
@@ -53,7 +52,7 @@ exports.order = async (req, res) => {
 			Order.create(req.body).then(async order => {
 				if(transactionID != "")
 				{
-					let user = await User.findOne({_id:userID},{ totalClicksPurchased:1 }).exec()
+					let user = await User.findOne({_id:userID},{ totalClicksPurchased:1 },{email:1}).exec()
 					let totalClicksPurchased = user.totalClicksPurchased + totalClicks
 					let additionalClicks = 0
 					if(totalClicksPurchased >= 1000 && totalClicksPurchased < 2500)
@@ -78,7 +77,7 @@ exports.order = async (req, res) => {
 					}
 					await User.updateOne({_id:userID},{$inc:{ totalClicksPurchased:totalClicks }}).exec()
 					await Order.updateOne({_id:order._id},{$set:{ additionalClicks:additionalClicks }}).exec()
-					orderconfirmation(req.get('host'),_id,user.email)
+					
 				}
 				return res.status(200).json({
 					status: 1,
@@ -483,7 +482,7 @@ exports.orderProfessionalFeature = async (req,res) => {
 	try
 	{
 		let { userID, cardNumber, cardType, expiry, cvv } = req.body
-		let user = await User.findOne({_id:userID},{ totalClicksPurchased:1 }).exec()
+		let user = await User.findOne({_id:userID},{ totalClicksPurchased:1 },{email:1}).exec()
 		if(user)
 		{
 			let cartItems = await Cartitem.find({userID:userID,orderID:""},{ amount:1}).exec()
@@ -499,6 +498,7 @@ exports.orderProfessionalFeature = async (req,res) => {
 					await Cartitem.updateMany({userID:userID,orderID:""},{$set:{orderID:order._id}}).exec()
 					order = JSON.parse(JSON.stringify(order))
 					order.cartItems = await Cartitem.find({userID:userID,orderID:order._id},{ userID:1, featureID:1, amount:1}).exec()
+					orderInvoiceEmail(req.get('host'),order._id,user.email,cartItems.amount, user.totalClicksPurchased ,Date.now())
 					return res.status(200).json({
 						status: 1,
 						message: `Order placed successfully.`,
